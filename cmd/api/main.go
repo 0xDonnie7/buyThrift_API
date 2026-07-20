@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"flag"
 	"log"
+	"log/slog"
+	"os"
 	"strings"
 	"time"
 
@@ -32,6 +34,7 @@ type config struct {
 type application struct {
 	config config
 	models data.Models
+	logger *slog.Logger
 }
 
 func main() {
@@ -51,6 +54,8 @@ func main() {
 	})
 
 	flag.Parse()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	if cfg.db.dsn == "" {
 		log.Fatal("db-dsn is required")
@@ -72,6 +77,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		models: data.NewModels(db),
+		logger: logger,
 	}
 
 	err = app.serve()
